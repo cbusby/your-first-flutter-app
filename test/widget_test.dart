@@ -11,20 +11,61 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_application_1/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group("Main page", () {
+    test('Like a word', () {
+      // Build our app and trigger a frame.
+      final notifier =
+          MyAppState(); // Create an instance of your ChangeNotifier
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(notifier.favorites,
+          isEmpty); // Verify that the list is initially empty
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      notifier.toggleFavorite();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(notifier.favorites, hasLength(1));
+    });
+
+    test('Unlike a word', () {
+      // Build our app and trigger a frame.
+      final notifier =
+          MyAppState(); // Create an instance of your ChangeNotifier
+
+      expect(notifier.favorites,
+          isEmpty); // Verify that the list is initially empty
+
+      notifier.toggleFavorite();
+
+      expect(notifier.favorites, hasLength(1));
+
+      notifier.toggleFavorite();
+
+      expect(notifier.favorites, isEmpty);
+    });
+
+    test('Get next word', () {
+      // Build our app and trigger a frame.
+      final notifier =
+          MyAppState(); // Create an instance of your ChangeNotifier
+
+      expect(notifier.current,
+          isNotNull); // Verify that the list is initially empty
+      var oldWord = notifier.current;
+
+      notifier.getNext();
+
+      expect(notifier.current == oldWord, isFalse);
+    });
+  });
+  testWidgets('Clicking NavigationRail item navigates to the right page',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp()); // Build the app
+
+    // Tap on a NavigationRail item
+    await tester.tap(find.text(
+        'Favorites')); // Replace with the actual label of the desired item
+    await tester.pumpAndSettle(); // Wait for the navigation to complete
+
+    // Verify that the app is now on the expected page
+    expect(find.text('Go to the home page to add favorites'), findsOneWidget);
   });
 }

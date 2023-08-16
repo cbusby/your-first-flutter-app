@@ -126,14 +126,18 @@ class FavViewPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     return ListView(
       children: [
-        for (var message in appState.favorites)
-          // ElevatedButton.icon(onPressed: appState.removeFavorite(message), icon: Icon(Icons.delete), label: Text('delete')),
+        if (appState.favorites.isNotEmpty)
+          for (var message in appState.favorites)
+            ListTile(
+                onTap: () {
+                  appState.removeFavorite(message);
+                },
+                leading: Icon(Icons.delete),
+                title: Text(message.asLowerCase)),
+        if (appState.favorites.isEmpty)
           ListTile(
-              onTap: () {
-                appState.removeFavorite(message);
-              },
-              leading: Icon(Icons.delete),
-              title: Text(message.asLowerCase)),
+            title: Text('Go to the home page to add favorites'),
+          )
       ],
     );
   }
