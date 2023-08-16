@@ -5,7 +5,6 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter_application_1/main.dart';
@@ -61,8 +60,7 @@ void main() {
     await tester.pumpWidget(MyApp()); // Build the app
 
     // Tap on a NavigationRail item
-    await tester.tap(find.text(
-        'Favorites')); // Replace with the actual label of the desired item
+    await tester.tap(find.text('Favorites'));
     await tester.pumpAndSettle(); // Wait for the navigation to complete
 
     // Verify that the app is now on the expected page

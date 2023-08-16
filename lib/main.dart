@@ -207,6 +207,7 @@ class BigCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Text(
+          key: Key('generatedWord'),
           pair.asLowerCase,
           style: style,
           semanticsLabel: "${pair.first} ${pair.second}",
