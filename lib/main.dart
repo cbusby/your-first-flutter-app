@@ -15,20 +15,36 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
-        ),
-        home: MyHomePage(),
-      ),
+      child: MyAppThemeContainer(),
+    );
+  }
+}
+
+class MyAppThemeContainer extends StatelessWidget {
+  const MyAppThemeContainer({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<MyAppState>(
+      builder: (context, myAppState, child) {
+        return MaterialApp(
+          title: 'Namer App',
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(seedColor: myAppState.themeColor),
+          ),
+          home: MyHomePage(),
+        );
+      },
     );
   }
 }
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  var themeColor = Colors.pink;
 
   void getNext() {
     current = WordPair.random();
@@ -55,6 +71,11 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void changeThemeColor(MaterialColor newColor) {
+    themeColor = newColor;
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -75,6 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         page = FavViewPage();
         break;
+      case 2:
+        page = SettingsPage();
+        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -93,6 +117,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.settings),
+                    label: Text('Settings'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -113,6 +141,43 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     });
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  final themeColors = [
+    Colors.pink,
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+    Colors.purple
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    return Column(
+      children: [
+        Text('\n\nChoose theme color:'),
+        Wrap(
+          spacing: 10, // Horizontal spacing between tiles
+          runSpacing: 10,
+          children: [
+            for (var color in themeColors)
+              GestureDetector(
+                onTap: () {
+                  appState.changeThemeColor(color);
+                },
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  color: color,
+                ),
+              )
+          ],
+        ),
+      ],
+    );
   }
 }
 
