@@ -41,6 +41,20 @@ void main() {
       expect(notifier.favorites, isEmpty);
     });
 
+    test("Remove a favorite", () {
+      final notifier = MyAppState();
+
+      expect(notifier.current, isNotNull);
+
+      notifier.toggleFavorite();
+      expect(notifier.favorites, hasLength(1));
+
+      var toRemove = notifier.favorites.firstOrNull;
+      notifier.removeFavorite(toRemove!);
+
+      expect(notifier.favorites, isEmpty);
+    });
+
     test('Get next word', () {
       // Build our app and trigger a frame.
       final notifier =
@@ -55,6 +69,7 @@ void main() {
       expect(notifier.current == oldWord, isFalse);
     });
   });
+
   testWidgets('Clicking NavigationRail item navigates to the right page',
       (WidgetTester tester) async {
     await tester.pumpWidget(MyApp()); // Build the app
