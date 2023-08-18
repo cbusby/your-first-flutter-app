@@ -33,7 +33,8 @@ class MyAppThemeContainer extends StatelessWidget {
           title: 'Namer App',
           theme: ThemeData(
             useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(seedColor: myAppState.themeColor),
+            colorScheme:
+                themeFromSeed(myAppState.themeColor, myAppState.isLightTheme),
           ),
           home: MyHomePage(),
         );
@@ -45,6 +46,7 @@ class MyAppThemeContainer extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
   var themeColor = Colors.pink;
+  var isLightTheme = true;
 
   void getNext() {
     current = WordPair.random();
@@ -74,6 +76,16 @@ class MyAppState extends ChangeNotifier {
 
   void changeThemeColor(MaterialColor newColor) {
     themeColor = newColor;
+    notifyListeners();
+  }
+
+  void activateLightMode() {
+    isLightTheme = true;
+    notifyListeners();
+  }
+
+  void activateDarkMode() {
+    isLightTheme = false;
     notifyListeners();
   }
 }
@@ -158,9 +170,10 @@ class SettingsPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     return Column(
       children: [
-        Text('\n\nChoose theme color:'),
+        Text('\n\nChoose theme color:',
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         Wrap(
-          spacing: 10, // Horizontal spacing between tiles
+          spacing: 10,
           runSpacing: 10,
           children: [
             for (var color in themeColors)
@@ -172,8 +185,44 @@ class SettingsPage extends StatelessWidget {
                   width: 50,
                   height: 50,
                   color: color,
+                  child: Icon(Icons.brush,
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
-              )
+              ),
+          ],
+        ),
+        Text('\n\nChoose light or dark:',
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            GestureDetector(
+                onTap: () {
+                  appState.activateLightMode();
+                },
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  color: Theme.of(context).colorScheme.background,
+                  child: Icon(
+                    Icons.brightness_low,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                )),
+            GestureDetector(
+                onTap: () {
+                  appState.activateDarkMode();
+                },
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  color: Theme.of(context).colorScheme.background,
+                  child: Icon(
+                    Icons.bedtime,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ))
           ],
         ),
       ],
@@ -189,21 +238,35 @@ class FavViewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    return ListView(
-      children: [
-        if (appState.favorites.isNotEmpty)
-          for (var message in appState.favorites)
-            ListTile(
-                onTap: () {
-                  appState.removeFavorite(message);
-                },
-                leading: Icon(Icons.delete),
-                title: Text(message.asLowerCase)),
-        if (appState.favorites.isEmpty)
-          ListTile(
-            title: Text('Go to the home page to add favorites'),
-          )
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          Wrap(
+            spacing: 20,
+            runSpacing: 20,
+            children: [
+              if (appState.favorites.isNotEmpty)
+                for (var message in appState.favorites)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      appState.removeFavorite(message);
+                    },
+                    icon: Icon(Icons.delete),
+                    label: Text(message.asLowerCase),
+                  ),
+              if (appState.favorites.isEmpty)
+                ListTile(
+                  title: Text(
+                    'Go to the home page to add favorites',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary),
+                  ),
+                )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -264,11 +327,10 @@ class BigCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
+      color: theme.colorScheme.primary,
     );
 
     return Card(
-      color: theme.colorScheme.primary,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Text(
@@ -280,4 +342,46 @@ class BigCard extends StatelessWidget {
       ),
     );
   }
+}
+
+ColorScheme themeFromSeed(Color seedColor, bool isLightTheme) {
+  final primaryColor = seedColor;
+  final secondaryColor = seedColor.withOpacity(0.8);
+  if (isLightTheme) {
+    return ColorScheme(
+      primary: Colors.white,
+      primaryContainer: Color.fromARGB(255, 244, 241, 241),
+      secondary: secondaryColor,
+      secondaryContainer: Colors.white,
+      background: Colors.white,
+      surface: primaryColor,
+      error: Colors.red,
+      onPrimary: primaryColor,
+      onSecondary: primaryColor,
+      onBackground: primaryColor,
+      onSurface: Colors.white,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    );
+  }
+
+  const brightness = Brightness.dark;
+
+  final colorScheme = ColorScheme(
+    primary: Color.fromARGB(255, 52, 53, 54),
+    primaryContainer: Color.fromARGB(255, 52, 53, 54),
+    secondary: secondaryColor,
+    secondaryContainer: Colors.black,
+    background: Colors.black,
+    surface: primaryColor,
+    error: Colors.red,
+    onPrimary: primaryColor,
+    onSecondary: primaryColor,
+    onBackground: primaryColor,
+    onSurface: Colors.black,
+    onError: Colors.black,
+    brightness: brightness,
+  );
+
+  return colorScheme;
 }
